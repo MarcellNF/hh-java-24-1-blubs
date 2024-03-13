@@ -4,15 +4,28 @@ import {Link, Route, Routes} from "react-router-dom";
 import NewCatForm from "./components/cat/NewCatForm.tsx";
 import useCats from "./hooks/useCats.ts";
 import CatDetails from "./components/cat/CatDetails.tsx";
+import axios from "axios";
 
 export default function App() {
     const {cats, saveCat, updateCat, deleteCat} = useCats();
+
+    const login = () => {
+        window.open("http://localhost:8080/oauth2/authorization/github", "_self")
+    }
+
+    const me = () => {
+        axios.get("/api/user/me").then(response => {
+            console.log(response.data)
+        })
+    }
 
     return (
         <>
             <ul>
                 <li><Link to={"/"}>Home</Link></li>
                 <li><Link to={"/new"}>New Cat</Link></li>
+                <li><button onClick={login}>Login Github</button></li>
+                <li><button onClick={me}>Me</button></li>
             </ul>
             <Routes>
                 <Route path={"/"} element={<CatGallery cats={cats}/>}/>
