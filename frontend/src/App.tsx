@@ -10,7 +10,9 @@ export default function App() {
     const {cats, saveCat, updateCat, deleteCat} = useCats();
 
     const login = () => {
-        window.open("http://localhost:8080/oauth2/authorization/github", "_self")
+        const host = window.location.host === "localhost:5173" ? "http://localhost:8080" : window.location.host
+
+        window.open(host + "/oauth2/authorization/github", "_self")
     }
 
     const me = () => {
