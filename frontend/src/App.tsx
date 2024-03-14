@@ -6,11 +6,12 @@ import useCats from "./hooks/useCats.ts";
 import CatDetails from "./components/cat/CatDetails.tsx";
 import axios from "axios";
 import {useEffect, useState} from "react";
+import ProtectedRoutes from "./ProtectedRoutes.tsx";
 
 export default function App() {
     const {cats, saveCat, updateCat, deleteCat} = useCats();
 
-    const [user, setUser] = useState<string | undefined>(undefined)
+    const [user, setUser] = useState<string | undefined | null>(undefined)
 
     useEffect(() => {
         getCurrentUser()
@@ -23,9 +24,13 @@ export default function App() {
     }
 
     const getCurrentUser = () => {
-        axios.get("/api/user/me").then(response => {
-            setUser(response.data)
-        })
+        axios.get("/api/user/me")
+            .then(response => {
+                setUser(response.data)
+            })
+            .catch(() => {
+                setUser(null)
+            })
     }
 
     const logout = () => {
@@ -39,18 +44,23 @@ export default function App() {
             <ul>
                 <li><Link to={"/"}>Home</Link></li>
                 <li><Link to={"/new"}>New Cat</Link></li>
-                {user === undefined && <li>
+                {user === null && <li>
                     <button onClick={login}>Login Github</button>
                 </li>}
-                {user !== undefined && <li><p>Hallo {user}</p></li>}
-                {user !== undefined && <li>
+                {user !== null && <li><p>Hallo {user}</p></li>}
+                {user !== null && <li>
                     <button onClick={logout}>Logout</button>
                 </li>}
             </ul>
             <Routes>
+                {/*All Public Routes*/}
                 <Route path={"/"} element={<CatGallery cats={cats}/>}/>
-                <Route path={"/new"} element={<NewCatForm saveCat={saveCat}/>}/>
                 <Route path={"/cats/:id"} element={<CatDetails updateCat={updateCat} deleteCat={deleteCat}/>}/>
+
+                <Route element={<ProtectedRoutes user={user} />} >
+                    <Route path={"/new"} element={<NewCatForm saveCat={saveCat}/>}/>
+                    {/*... other Protected Routes*/}
+                </Route>
             </Routes>
         </>
     )
